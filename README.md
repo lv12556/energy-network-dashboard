@@ -53,3 +53,7 @@ energy-network-dashboard/
 ## 数据说明
 
 地图轮廓数据位于 `data/china.geojson`，业务城市和业务文案位于 `app.js` 的 `regions` 配置中。
+
+## 部署
+https://lv12556.github.io/energy-network-dashboard/
+
