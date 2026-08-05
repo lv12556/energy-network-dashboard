@@ -835,6 +835,77 @@ body, body p, body h1, body h2, body span, body dt, body dd, body b,
   }
 }
 
+/* The business details appear as direct map copy instead of a floating panel. */
+.business-modal,
+.business-modal.is-open {
+  width:min(390px, calc(100vw - 36px));
+  margin:0;
+  padding:0;
+  background:transparent;
+  border:0;
+  border-radius:0;
+  box-shadow:none;
+  backdrop-filter:none;
+  pointer-events:none;
+  text-align:right;
+}
+.business-modal::after { display:none; }
+.business-modal .eyebrow {
+  margin:0 0 8px;
+  color:#8fc7d1 !important;
+  font-size:11px;
+  font-weight:700;
+  letter-spacing:2px;
+}
+.business-modal .region-index {
+  justify-content:flex-end;
+  margin:0 0 2px;
+  color:#9ccbd2 !important;
+  font-size:12px;
+}
+.business-modal .region-index span:first-child {
+  color:#d9f8f5 !important;
+  font-size:15px;
+}
+.business-modal h2 {
+  margin:0;
+  color:#f4fffd !important;
+  font-size:38px;
+  line-height:1.08;
+  font-weight:500;
+  letter-spacing:0;
+  text-shadow:0 3px 16px rgba(0,8,18,.88);
+}
+.business-modal .region-category {
+  margin:8px 0 10px;
+  color:#bdebef !important;
+  font-size:18px;
+  line-height:1.35;
+  font-weight:400;
+  letter-spacing:0;
+}
+.business-modal .region-copy {
+  min-height:0;
+  margin:0 0 10px;
+  color:#e1f5f4 !important;
+  font-size:16px;
+  line-height:1.65;
+}
+.business-modal .detail-metric {
+  display:block;
+  margin:0;
+  padding:0;
+  border:0;
+  color:#91bec6 !important;
+  font-size:13px;
+}
+.business-modal .detail-metric span { margin-right:8px; }
+.business-modal .detail-metric strong {
+  color:#f5fffd !important;
+  font-size:18px;
+  font-weight:500;
+}
+
 @keyframes gridLift {
   0%,100% { transform:translateX(-50%) perspective(680px) rotateX(62deg) translateY(2px); opacity:.68; }
   50% { transform:translateX(-50%) perspective(680px) rotateX(62deg) translateY(-3px); opacity:.9; }

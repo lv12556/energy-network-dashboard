@@ -238,7 +238,7 @@ function setActiveRegion(index, options = {}) {
   }
   activeIndex = index;
   const region = regions[index];
-  const panel = document.querySelector('.detail-panel');
+  const panel = document.getElementById('business-modal');
   const wasOpen = panel.classList.contains('is-open');
   document.getElementById('region-index').textContent = String(index + 1).padStart(2, '0');
   document.getElementById('region-name').textContent = region.name;
@@ -250,32 +250,27 @@ function setActiveRegion(index, options = {}) {
   if (target) target.classList.add('is-active');
   const selectedProvince = document.querySelector(`[data-adcode="${provinceCodes[index]}"]`);
   if (selectedProvince) selectedProvince.classList.add('is-active');
-  document.getElementById('route-timeline').innerHTML = regions.map((_, regionIndex) => `<i class="${regionIndex === index ? 'active' : ''}"></i>`).join('');
   focusMapCamera(region);
   emitRoute(index);
   panel.setAttribute('aria-hidden', 'false');
   document.getElementById('modal-backdrop').classList.add('is-open');
   if (!wasOpen) panel.classList.add('is-open');
-  panel.classList.remove('is-changing');
-  void panel.offsetWidth;
-  panel.classList.add('is-changing');
 }
 
 function closeBusinessModal() {
   stopAutoShowcase();
   resetMapCamera();
-  const panel = document.querySelector('.detail-panel');
+  const panel = document.getElementById('business-modal');
   panel.classList.remove('is-open');
   panel.setAttribute('aria-hidden', 'true');
   document.getElementById('modal-backdrop').classList.remove('is-open');
   document.querySelectorAll('.geo-province').forEach(path => path.classList.remove('is-active'));
 }
 
-document.getElementById('modal-close').addEventListener('click', closeBusinessModal);
 document.getElementById('modal-backdrop').addEventListener('click', closeBusinessModal);
 document.addEventListener('keydown', event => { if (event.key === 'Escape') closeBusinessModal(); });
 window.addEventListener('resize', () => {
-  if (document.querySelector('.detail-panel.is-open')) {
+  if (document.getElementById('business-modal').classList.contains('is-open')) {
     focusMapCamera(regions[activeIndex]);
   }
 });
