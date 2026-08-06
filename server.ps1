@@ -14,12 +14,12 @@ while ($true) {
     $request = [System.Text.Encoding]::ASCII.GetString($requestBuffer, 0, $requestLength)
     $requestPath = ([regex]::Match($request, '^GET\s+([^\s?]+)')).Groups[1].Value
     if ($requestPath -eq '/') { $requestPath = '/index.html' }
-    $allowedPaths = @('/index.html', '/styles.css', '/app.js', '/data/china.geojson')
+    $allowedPaths = @('/index.html', '/styles.css', '/app.js', '/three-map.js', '/data/china.geojson', '/data/background.mp4')
 
     if ($allowedPaths -contains $requestPath) {
       $filePath = Join-Path $root $requestPath.TrimStart('/').Replace('/', '\')
       $body = [System.IO.File]::ReadAllBytes($filePath)
-      $contentType = if ($requestPath.EndsWith('.css')) { 'text/css; charset=utf-8' } elseif ($requestPath.EndsWith('.js')) { 'application/javascript; charset=utf-8' } elseif ($requestPath.EndsWith('.geojson')) { 'application/geo+json; charset=utf-8' } else { 'text/html; charset=utf-8' }
+      $contentType = if ($requestPath.EndsWith('.css')) { 'text/css; charset=utf-8' } elseif ($requestPath.EndsWith('.js')) { 'application/javascript; charset=utf-8' } elseif ($requestPath.EndsWith('.geojson')) { 'application/geo+json; charset=utf-8' } elseif ($requestPath.EndsWith('.mp4')) { 'video/mp4' } else { 'text/html; charset=utf-8' }
       $status = '200 OK'
     } else {
       $body = [System.Text.Encoding]::UTF8.GetBytes('Not Found')

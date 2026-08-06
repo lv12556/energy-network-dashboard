@@ -9,6 +9,15 @@
 </head>
 <body>
   <main class="dashboard">
+    <video class="background-video" autoplay muted loop playsinline aria-hidden="true">
+      <source src="data/background.mp4" type="video/mp4">
+    </video>
+    <div class="tech-background" aria-hidden="true">
+      <i class="signal-lane lane-a"></i>
+      <i class="signal-lane lane-b"></i>
+      <i class="signal-lane lane-c"></i>
+      <i class="signal-lane lane-d"></i>
+    </div>
     <header class="topbar">
       <div class="heading"><p>HSD ENERGY NETWORK / 2026</p><h1>综合能源业务网络</h1></div>
       <div class="live-status"><i></i> 网络运行中</div>
@@ -30,9 +39,13 @@
 
       <section class="map-stage" aria-label="呼和浩特综合能源调度网络地图">
         <div class="stage-caption top-caption"><span>全国业务拓扑</span><b>Hohhot Dispatch Center</b></div>
-        <div class="energy-base" aria-hidden="true">
+        <div class="map-ripple-field" aria-hidden="true">
+          <i class="map-ripple ripple-one"></i>
+          <i class="map-ripple ripple-two"></i>
+          <i class="map-ripple ripple-three"></i>
         </div>
-        <svg id="network-map" viewBox="0 0 1000 760" role="img" aria-label="中国综合能源业务网络地图">
+        <canvas id="three-map-canvas" aria-hidden="true"></canvas>
+        <svg id="network-map" viewBox="0 0 1000 760" preserveAspectRatio="none" role="img" aria-label="中国综合能源业务网络地图">
           <defs>
             <!-- 省份渐变（app.js 中使用） -->
             <linearGradient id="province-gradient" gradientUnits="userSpaceOnUse" x1="150" y1="145" x2="835" y2="660">
@@ -91,6 +104,8 @@
     </footer>
   </main>
   <div id="modal-backdrop" class="modal-backdrop" aria-hidden="true"></div>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="three-map.js"></script>
   <script src="app.js"></script>
 </body>
 </html>
