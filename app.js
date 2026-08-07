@@ -15,7 +15,11 @@ const regions = [
   { name: '杭州', lng: 120.1551, lat: 30.2741, category: '数字负荷与光伏接入', metric: '光伏接入', copy: '通过负荷柔性调控与分布式光伏接入，提升园区绿色用能占比。', bend: 42 },
   { name: '广州', lng: 113.2644, lat: 23.1291, category: '综合能源与储能充电', metric: '终端负荷', copy: '覆盖综合能源站、储能充电与终端负荷协同，支持多场景灵活用能。', bend: 50 },
   { name: '成都', lng: 104.0665, lat: 30.5723, category: '园区配电与能效服务', metric: '园区服务', copy: '结合产业园区配电与设备管理，形成可量化的用能诊断和节能服务闭环。', bend: 38 },
-  { name: '银川', lng: 106.2309, lat: 38.4872, category: '新能源消纳与调峰', metric: '调峰能力', copy: '连接区域新能源项目与调峰资源，保障绿色电力平稳接入和灵活消纳。', bend: 16 }
+  { name: '银川', lng: 106.2309, lat: 38.4872, category: '新能源消纳与调峰', metric: '调峰能力', copy: '连接区域新能源项目与调峰资源，保障绿色电力平稳接入和灵活消纳。', bend: 16 },
+  { name: '西安', lng: 108.9398, lat: 34.3416, category: '装备制造与综合供能', metric: '装备制造', copy: '围绕高端装备制造与产业园区，提供配电升级、综合供能和能效优化服务。', bend: 30 },
+  { name: '武汉', lng: 114.3054, lat: 30.5931, category: '城市能源与智慧运维', metric: '智慧运维', copy: '面向城市公共设施与重点园区，建设数字化运维和多能协同调度体系。', bend: 34 },
+  { name: '南京', lng: 118.7969, lat: 32.0603, category: '工业绿电与柔性负荷', metric: '工业绿电', copy: '服务先进制造业的绿色电力采购、柔性负荷管理与低碳用能改造。', bend: 36 },
+  { name: '昆明', lng: 102.8329, lat: 24.8801, category: '清洁能源与区域协同', metric: '清洁能源', copy: '连接水电、光伏等清洁能源资源，支撑区域协同消纳和绿色用能服务。', bend: 46 }
 ];
 
 const hub = { name: '呼和浩特', lng: 111.7492, lat: 40.8426 };
@@ -26,10 +30,33 @@ let autoShowcaseIndex = 0;
 const autoShowcaseInterval = 3200;
 const autoInteractionDelay = 1000;
 const cameraFocusScale = 1.42;
-const provinceCodes = [650000, 110000, 210000, 310000, 330000, 440000, 510000, 640000];
+const provinceCodes = [650000, 110000, 210000, 310000, 330000, 440000, 510000, 640000, 610000, 420000, 320000, 530000];
 const routeModels = [];
 const routeFlightDuration = 1500;
 const initialRouteFlightDuration = 1200;
+
+function animateOverviewCounts() {
+  document.querySelectorAll('[data-count-to]').forEach((element, index) => {
+    const target = Number(element.dataset.countTo);
+    const suffix = element.dataset.countSuffix || '';
+    const duration = 900 + index * 90;
+    const startedAt = performance.now();
+    const update = timestamp => {
+      const progress = Math.min(1, (timestamp - startedAt) / duration);
+      const eased = 1 - Math.pow(1 - progress, 3);
+      element.textContent = `${Math.round(target * eased)}${suffix}`;
+      if (progress < 1) requestAnimationFrame(update);
+    };
+    requestAnimationFrame(update);
+  });
+}
+
+function updateNetworkTotals() {
+  const count = String(regions.length).padStart(2, '0');
+  document.getElementById('region-total').textContent = `/ ${count}`;
+  document.getElementById('network-count').textContent = `${count} / ${count}`;
+  document.getElementById('route-count').textContent = `${regions.length} 条重点业务链路`;
+}
 
 function make(tag, attrs = {}) {
   const element = document.createElementNS(ns, tag);
@@ -299,6 +326,8 @@ function closeBusinessModal() {
 
 document.getElementById('modal-backdrop').addEventListener('click', closeBusinessModal);
 document.addEventListener('keydown', event => { if (event.key === 'Escape') closeBusinessModal(); });
+updateNetworkTotals();
+window.setTimeout(animateOverviewCounts, 180);
 window.addEventListener('resize', () => {
   if (document.getElementById('business-modal').classList.contains('is-open')) {
     focusMapCamera(regions[activeIndex]);
