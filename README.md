@@ -1,22 +1,26 @@
 # 综合能源业务网络
 
-以呼和浩特为调度中枢的全国能源业务可视化页面。项目使用 Three.js 将中国省级 GeoJSON 生成深蓝玻璃质感的立体地图，并连接八个重点业务城市。
+全国综合能源业务可视化页面，以呼和浩特为调度中枢，展示 12 个重点城市的业务布局、项目图片和区域联动关系。
+
+在线预览：[https://lv12556.github.io/energy-network-dashboard/](https://lv12556.github.io/energy-network-dashboard/)
 
 ## 功能
 
-- Three.js 省级挤出地图，包含深蓝侧壁、玻璃高光和低对比省界。
-- 呼和浩特调度中枢与乌鲁木齐、北京、沈阳、上海、杭州、广州、成都、银川八个业务节点。
-- 页面加载时，八条黄色光线从呼和浩特同时沿向上弧线发射，并在抵达后保留路径。
-- 自动巡展依次展示八个业务城市，地图镜头聚焦目标区域；结束后回到全图视角，并保留最后一个城市的选中信息。
-- 点击有业务的省份或城市节点，显示对应的业务分类、说明和业务节点信息。
-- 选中或悬停省份会提高省块亮度与边缘可见度。
-- `data/background.mp4` 作为深蓝压暗的视频背景；地图下方有延迟出现的扩散环动画。
+- Three.js 驱动的中国省级立体地图，使用深蓝地形贴图、玻璃质感和分层底座。
+- 荧光浅蓝国界、低对比省界，以及深蓝科技风格的地图光效。
+- 呼和浩特中心点进场：地图显示后，中心光点自上而下落入位置，触发双层扩散光波，再连接全国业务节点。
+- 覆盖乌鲁木齐、北京、沈阳、上海、杭州、广州、成都、银川、西安、武汉、南京、昆明 12 个重点城市。
+- 自动巡展逐个展示城市业务；选中城市的省份、节点和文字标签会高亮，并显示对应的业务弹窗和项目图片。
+- 可点击业务城市或省份查看详情；点击地图外部可回到全国总览。
+- 自动巡展完成后，长时间无交互会回到总览；用户主动返回总览后会短暂停留再恢复巡展。
+- 呼和浩特中心图标保持独立浮动，城市节点配有定位标识。
 
-## 技术
+## 技术栈
 
-- 原生 HTML、CSS、JavaScript，无需构建工具。
-- Three.js r128 通过 CDN 加载，用于省份立体渲染。
-- 中国省级边界数据：`data/china.geojson`。
+- 原生 HTML、CSS、JavaScript，无构建步骤。
+- Three.js r128（CDN）负责省份挤出、材质、边界和交互状态。
+- SVG 负责业务节点、路线、标签与进场动画。
+- GeoJSON 提供中国省级边界数据。
 
 ## 本地运行
 
@@ -32,32 +36,50 @@ powershell -ExecutionPolicy Bypass -File .\server.ps1 -Port 5180
 http://localhost:5180/
 ```
 
-也可将 `5180` 换为任意空闲端口。静态服务已包含 JavaScript、GeoJSON 和 MP4 视频的响应类型。
+也可以将 `5180` 替换为任意空闲端口。不要直接双击 `index.html`，浏览器会限制本地 GeoJSON 请求。
 
-## 目录
+## 项目结构
 
 ```text
 energy-network-dashboard/
+├─ assets/
+│  ├─ image-1.png                 地图地形贴图
+│  ├─ 中心点.png、定位.png          中心与城市定位图标
+│  └─ image-*.png                 业务项目图片
 ├─ data/
-│  ├─ background.mp4       页面背景视频
-│  └─ china.geojson        中国省级地图数据
-├─ app.js                  节点、业务数据、路线和自动巡展逻辑
-├─ three-map.js            Three.js 省份挤出、材质与高亮逻辑
-├─ styles.css              布局、深蓝主题与动效
-├─ index.html              页面结构和第三方资源引用
-├─ server.ps1              本地静态服务器
-└─ README.md               项目说明
+│  ├─ background.mp4              页面背景视频
+│  └─ china.geojson               中国省级边界数据
+├─ index.html                     页面结构、SVG 图层与资源引用
+├─ styles.css                     主布局、视觉主题和交互样式
+├─ map-scale.css                  地图尺寸与业务弹窗的补充样式
+├─ three-map.js                   Three.js 地图、材质、边界与省份高亮
+├─ app.js                         城市数据、路线、自动巡展和交互状态
+├─ server.ps1                     本地静态服务器
+└─ README.md                      项目说明
 ```
 
-## 数据与交互维护
+## 内容维护
 
-- 在 `app.js` 的 `regions` 数组中维护城市坐标、业务分类、指标和说明文案。
-- `provinceCodes` 将每个业务城市关联到对应的省级行政区代码。
-- 地图边界数据替换后，需保持 `data/china.geojson` 的标准 GeoJSON FeatureCollection 结构。
-- 背景视频可替换为同路径的 `data/background.mp4`，建议保持 MP4 格式并控制文件体积。
+### 城市与业务信息
+
+在 `app.js` 中维护以下对象：
+
+- `regions`：城市名称、经纬度、业务分类、说明与路线弯曲程度。
+- `provinceCodes`：业务城市与省级行政区代码的对应关系。
+- `projectTitlesByCity`、`projectDetailsByCity`：弹窗中的项目标题与介绍。
+- `projectImagesByCity`：城市对应的项目图片路径。
+
+新增城市时，需要同时补充以上关联数据，并确认 `data/china.geojson` 中存在相应省级行政区代码。
+
+### 地图与素材
+
+- `assets/image-1.png` 是当前地图表面使用的深蓝地形贴图。
+- `assets/中心点.png` 和 `assets/定位.png` 分别用于调度中枢和城市定位。
+- 业务图片建议使用清晰的横向工程、设备或场站图片，以便适配右侧弹窗的 `16:10` 比例。
+- 替换 `data/china.geojson` 时，需保持标准 GeoJSON `FeatureCollection` 结构，并保留省级 `adcode` 属性。
 
 ## 部署
 
-本项目为纯静态页面，可直接部署到 GitHub Pages、任意静态站点托管或对象存储。部署时请一并上传 `data/` 目录、`three-map.js` 和其余静态文件。
+项目为纯静态页面，可部署到 GitHub Pages、静态站点托管或对象存储。部署时需要完整上传 `assets/`、`data/` 与全部 HTML、CSS、JavaScript 文件。
 
-https://lv12556.github.io/energy-network-dashboard/
+GitHub Pages 地址：[https://lv12556.github.io/energy-network-dashboard/](https://lv12556.github.io/energy-network-dashboard/)

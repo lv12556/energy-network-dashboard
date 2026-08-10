@@ -1,0 +1,196 @@
+/* Desktop visual tuning: preserve the layout footprint while easing the map size. */
+@media (min-width: 1024px) {
+  .map-stage {
+    transform: translate(.5%, -2%) scale(.90);
+    transform-origin: center center;
+  }
+}
+
+/* The canvas stays transparent outside the map, so this traces only its outer silhouette. */
+.map-stage canvas {
+  filter: drop-shadow(0 0 1px rgba(220, 255, 255, 1))
+    drop-shadow(0 0 4px rgba(97, 238, 255, .98))
+    drop-shadow(0 0 10px rgba(30, 170, 255, .86))
+    drop-shadow(0 0 20px rgba(16, 111, 224, .62));
+}
+
+#network-map .target-node.is-active .node-pulse {
+  fill: rgba(88, 239, 255, .84);
+  animation-duration: 1.35s;
+  filter: url(#map-glow);
+}
+
+#network-map .target-node.is-active .node-ring {
+  stroke: #bfffff;
+  stroke-width: 1.6;
+  filter: url(#map-glow);
+}
+
+#network-map .target-node.is-active .node-core {
+  fill: #ffffff;
+  stroke: #6beeff;
+  stroke-width: 1.8;
+  filter: url(#route-glow);
+}
+
+#network-map .target-node.is-active .map-label-plate {
+  fill: rgba(4, 105, 160, .94);
+  stroke: #b9ffff;
+  stroke-width: 1.05;
+  filter: url(#route-glow);
+}
+
+#network-map .target-node.is-active .map-label {
+  fill: #ffffff !important;
+  font-size: 11.5px;
+  font-weight: 800;
+  filter: url(#map-glow);
+}
+
+#network-map .map-location-icon {
+  opacity: .82;
+  pointer-events: none;
+  filter: drop-shadow(0 0 2px rgba(69, 220, 255, .85));
+}
+
+#network-map .target-node.is-active .map-location-icon {
+  opacity: 1;
+  filter: drop-shadow(0 0 4px rgba(164, 251, 255, 1));
+}
+
+#network-map .hub-location-icon {
+  pointer-events: none;
+  filter: drop-shadow(0 0 5px rgba(110, 236, 255, .98));
+  transform-box: fill-box;
+  transform-origin: center;
+}
+
+#network-map .hub-node.is-entering .hub-location-icon {
+  animation: hubLocationFloat 2.4s ease-in-out 1.35s infinite;
+}
+
+#network-map .hub-entry {
+  opacity: 0;
+}
+
+#network-map .hub-node.is-entering .hub-entry {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: hubEntry 1.35s cubic-bezier(.22, .82, .25, 1) both;
+}
+
+#network-map .hub-landing-wave {
+  fill: none;
+  stroke: #b9fbff;
+  stroke-width: 2.2;
+  opacity: 0;
+  transform-box: fill-box;
+  transform-origin: center;
+  filter: url(#map-glow);
+}
+
+#network-map .hub-landing-wave-primary {
+  animation: none;
+}
+
+#network-map .hub-node.is-entering .hub-landing-wave-primary {
+  animation: hubLandingWave 1.15s ease-out .86s both;
+}
+
+#network-map .hub-landing-wave-secondary {
+  stroke-width: 1.45;
+  animation: none;
+}
+
+#network-map .hub-node.is-entering .hub-landing-wave-secondary {
+  animation: hubLandingWave 1.25s ease-out .98s both;
+}
+
+@keyframes hubLocationFloat {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
+}
+
+@keyframes hubEntry {
+  0% { opacity: 0; transform: translateY(-190px) scale(.65); }
+  18% { opacity: .85; }
+  72% { opacity: 1; transform: translateY(3px) scale(1.015); }
+  86% { transform: translateY(-1px) scale(.998); }
+  100% { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@keyframes hubLandingWave {
+  0% { opacity: 0; transform: scale(.22); }
+  16% { opacity: 1; }
+  100% { opacity: 0; transform: scale(3.35); }
+}
+
+.business-modal,
+.business-modal.is-open {
+  box-sizing: border-box;
+  padding: 20px;
+  background: rgba(3, 21, 42, .88);
+  border: 1px solid rgba(96, 220, 246, .5);
+  border-radius: 6px;
+  box-shadow: 0 16px 36px rgba(0, 5, 18, .42), inset 0 1px 0 rgba(185, 250, 255, .1);
+  backdrop-filter: blur(12px);
+  pointer-events: auto;
+  text-align: left;
+}
+
+.business-modal .project-media {
+  aspect-ratio: 16 / 10;
+  height: auto;
+  margin: 14px 0;
+  background-color: rgba(7, 44, 76, .72);
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
+  border: 1px dashed rgba(115, 223, 244, .42);
+  border-radius: 4px;
+  box-shadow: inset 0 0 22px rgba(0, 140, 224, .15);
+}
+
+.business-modal .project-media.has-image {
+  border-style: solid;
+}
+
+.business-modal.is-overview .project-media {
+  display: none;
+}
+
+.business-modal.is-overview .region-copy {
+  margin-bottom: 14px;
+}
+
+#business-modal .region-category {
+  color: #d9fbff !important;
+  font-weight: 700;
+  letter-spacing: 0;
+}
+
+#business-modal .region-copy {
+  color: #f0fbff !important;
+  font-weight: 500;
+  line-height: 1.62;
+}
+
+#business-modal .region-details {
+  margin: 0 0 14px;
+  color: rgba(190, 228, 241, .96);
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1.8;
+  white-space: pre-line;
+}
+
+@media (max-width: 720px) {
+  .business-modal,
+  .business-modal.is-open {
+    padding: 16px;
+  }
+
+  .business-modal .project-media {
+    height: 92px;
+  }
+}

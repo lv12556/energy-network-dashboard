@@ -6,6 +6,7 @@
   <meta name="theme-color" content="#0b1a2a">
   <title>综合能源业务网络</title>
   <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="map-scale.css">
 </head>
 <body>
   <main class="dashboard">
@@ -38,21 +39,7 @@
     </header>
 
     <section class="workspace" aria-label="全国能源业务分布">
-      <aside class="side-panel overview-panel">
-        <p class="eyebrow">NETWORK OVERVIEW</p>
-        <h2>业务覆盖全国<br><strong data-count-to="12">0</strong> 个重点城市</h2>
-        <div class="summary-rule"></div>
-        <dl class="overview-list">
-          <div><dt>新能源接入</dt><dd data-count-to="30" data-count-suffix="%">0%</dd></div>
-          <div><dt>工业与数字负荷</dt><dd data-count-to="25" data-count-suffix="%">0%</dd></div>
-          <div><dt>城市公共保障</dt><dd data-count-to="25" data-count-suffix="%">0%</dd></div>
-          <div><dt>综合能源服务</dt><dd data-count-to="20" data-count-suffix="%">0%</dd></div>
-        </dl>
-        <p class="panel-note">以呼和浩特调度中心为核心，连接风光基地、工业园区、城市负荷与数字能源服务节点。</p>
-      </aside>
-
       <section class="map-stage" aria-label="呼和浩特综合能源调度网络地图">
-        <div class="stage-caption top-caption"><span>全国业务拓扑</span><b>Hohhot Dispatch Center</b></div>
         <div class="map-ripple-field" aria-hidden="true">
           <i class="map-ripple ripple-one"></i>
           <i class="map-ripple ripple-two"></i>
@@ -92,21 +79,21 @@
               <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
             </filter>
           </defs>
-          <g id="map-depth"></g>
           <g id="map-provinces"></g>
           <g id="network-routes"></g>
           <g id="network-nodes"></g>
         </svg>
-        <div class="stage-caption bottom-caption"><span>ENERGY LINK</span><b id="route-count">12 条重点业务链路</b></div>
       </section>
 
-      <aside id="business-modal" class="business-modal" aria-live="polite" aria-hidden="true" aria-label="BUSINESS DISTRIBUTION">
-        <p class="eyebrow">BUSINESS DISTRIBUTION</p>
-        <div class="region-index"><span id="region-index">01</span><span id="region-total">/ 12</span></div>
-        <h2 id="region-name">乌鲁木齐</h2>
-        <p class="region-category" id="region-category">风光发电与绿电外送</p>
-        <p class="region-copy" id="region-copy">连接大型风电、光伏基地，支撑远距离绿电输送与本地消纳协同。</p>
-        <div class="detail-metric"><span>业务节点</span><strong id="region-metric">风光基地</strong></div>
+      <aside id="business-modal" class="business-modal is-open is-overview" aria-live="polite" aria-hidden="false" aria-label="BUSINESS DISTRIBUTION">
+        <p class="eyebrow" id="business-eyebrow">BUSINESS OVERVIEW</p>
+        <div class="region-index"><span id="region-index">ALL</span><span id="region-total">/ 12</span></div>
+        <h2 id="region-name">全国业务网络</h2>
+        <p class="region-category" id="region-category">综合能源业务分布</p>
+        <div id="project-media" class="project-media" aria-hidden="true"></div>
+        <p class="region-copy" id="region-copy">覆盖全国 12 个核心城市，协同服务配电、新能源与综合能源项目。</p>
+        <p class="region-details" id="region-details">统筹区域配电装备、新能源配套与综合能源服务。\n形成城市协同、项目联动的业务网络。</p>
+        <div class="detail-metric"><span id="region-metric-label">核心节点</span><strong id="region-metric">12 个城市</strong></div>
       </aside>
     </section>
 
@@ -117,7 +104,6 @@
       <div><span>系统状态</span><b class="healthy">稳定运行</b></div>
     </footer>
   </main>
-  <div id="modal-backdrop" class="modal-backdrop" aria-hidden="true"></div>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
   <script src="three-map.js"></script>
   <script src="app.js"></script>

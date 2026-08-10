@@ -1,7 +1,6 @@
 const svg = document.getElementById('network-map');
 const ns = 'http://www.w3.org/2000/svg';
 const layers = {
-  depth: document.getElementById('map-depth'),
   provinces: document.getElementById('map-provinces'),
   routes: document.getElementById('network-routes'),
   nodes: document.getElementById('network-nodes')
@@ -23,17 +22,64 @@ const regions = [
 ];
 
 const hub = { name: '呼和浩特', lng: 111.7492, lat: 40.8426 };
+const projectImagesByCity = {
+  '乌鲁木齐': ['assets/image-1785574746405.png', 'assets/image-1785716048697.png'],
+  '北京': ['assets/image-1785715510868.png', 'assets/image-1785716155364.png'],
+  '沈阳': ['assets/image-1785575087758.png', 'assets/image-1785715699955.png'],
+  '上海': ['assets/image-1785574863836.png', 'assets/image-1785716152533.png'],
+  '杭州': ['assets/image-1785715531896.png', 'assets/image-1785575092622.png'],
+  '广州': ['assets/image-1785716149866.png', 'assets/image-1785715526442.png'],
+  '成都': ['assets/image-1785575190522.png'],
+  '银川': ['assets/image-1785716045738.png'],
+  '西安': ['assets/image-1785574868254.png'],
+  '武汉': ['assets/image-1785716051352.png'],
+  '南京': ['assets/image-1785715694404.png'],
+  '昆明': ['assets/image-1785715697224.png']
+};
+const projectTitlesByCity = {
+  '乌鲁木齐': '新能源基地',
+  '北京': '城市保电',
+  '沈阳': '工业供电',
+  '上海': '城市配电',
+  '杭州': '数字能源',
+  '广州': '储能充电',
+  '成都': '园区配电',
+  '银川': '新能源调峰',
+  '西安': '综合供能',
+  '武汉': '智慧运维',
+  '南京': '工业绿电',
+  '昆明': '清洁能源'
+};
+const projectDetailsByCity = {
+  '乌鲁木齐': '接入风电、光伏等大型新能源项目。\n提供绿电外送与场站运维支持。',
+  '北京': '服务重点建筑与公共设施用能。\n提供应急保电和低碳能效管理。',
+  '沈阳': '覆盖装备制造与工业园区负荷。\n提升供电可靠性与设备运维效率。',
+  '上海': '面向城市配电和数据中心场景。\n支持重点负荷监测与数字化运营。',
+  '杭州': '连接园区数字负荷与分布式光伏。\n推动柔性调控和绿色用能提升。',
+  '广州': '服务综合能源站与充换电场景。\n联动储能资源与终端负荷调度。',
+  '成都': '面向产业园区配电升级项目。\n提供设备管理与节能诊断服务。',
+  '银川': '衔接区域新能源项目与调峰资源。\n保障绿色电力稳定接入和消纳。',
+  '西安': '服务装备制造及产业园区客户。\n提供配电升级与综合供能方案。',
+  '武汉': '覆盖城市公共设施和重点园区。\n提供智能监测与协同运维服务。',
+  '南京': '面向先进制造业绿色用能需求。\n提供绿电采购和柔性负荷管理。',
+  '昆明': '连接水电、光伏等清洁能源资源。\n支持区域协同消纳与用能服务。'
+};
 let activeIndex = 0;
 let autoShowcaseTimer = null;
 let autoShowcaseActive = false;
 let autoShowcaseIndex = 0;
 const autoShowcaseInterval = 3200;
-const autoInteractionDelay = 1000;
+const autoInteractionDelay = 3000;
+const idleOverviewDelay = 10000;
 const cameraFocusScale = 1.42;
 const provinceCodes = [650000, 110000, 210000, 310000, 330000, 440000, 510000, 640000, 610000, 420000, 320000, 530000];
 const routeModels = [];
 const routeFlightDuration = 1500;
 const initialRouteFlightDuration = 1200;
+const hubEntryDuration = 1450;
+let hubEntryNode = null;
+let idleOverviewTimer = null;
+let idleOverviewVersion = 0;
 
 function animateOverviewCounts() {
   document.querySelectorAll('[data-count-to]').forEach((element, index) => {
@@ -53,9 +99,13 @@ function animateOverviewCounts() {
 
 function updateNetworkTotals() {
   const count = String(regions.length).padStart(2, '0');
-  document.getElementById('region-total').textContent = `/ ${count}`;
-  document.getElementById('network-count').textContent = `${count} / ${count}`;
-  document.getElementById('route-count').textContent = `${regions.length} 条重点业务链路`;
+  const updateText = (id, value) => {
+    const element = document.getElementById(id);
+    if (element) element.textContent = value;
+  };
+  updateText('region-total', `/ ${count}`);
+  updateText('network-count', `${count} / ${count}`);
+  updateText('route-count', `${regions.length} 条重点业务链路`);
 }
 
 function make(tag, attrs = {}) {
@@ -80,21 +130,34 @@ function geometryPath(geometry) {
   return polygons.map(polygon => polygon.map(ringPath).join(' ')).join(' ');
 }
 
-function drawLocation(point, isHub = false) {
+function drawLocation(point, isHub = false, regionIndex = null) {
   const [x, y] = project([point.lng, point.lat]);
-  const group = make('g', { class: isHub ? 'hub-node' : 'target-node', tabindex: '0', role: 'button', 'aria-label': `${point.name}业务节点` });
+  const group = make('g', {
+    class: isHub ? 'hub-node' : 'target-node',
+    tabindex: '0',
+    role: 'button',
+    'aria-label': `${point.name}业务节点`,
+    'data-region-index': regionIndex == null ? '' : regionIndex
+  });
   if (isHub) {
-    group.append(make('path', { d: `M${x - 15} ${y - 2} L${x} ${y - 105} L${x + 15} ${y - 2} Z`, class: 'hub-beam' }));
-    group.append(make('circle', { cx: x, cy: y, r: 23, class: 'hub-orbit' }));
-    group.append(make('circle', { cx: x, cy: y, r: 11, class: 'node-pulse' }));
-    group.append(make('circle', { cx: x, cy: y, r: 8, class: 'hub-core' }));
+    group.append(make('circle', { cx: x, cy: y, r: 34, class: 'hub-landing-wave hub-landing-wave-primary', 'aria-hidden': 'true' }));
+    group.append(make('circle', { cx: x, cy: y, r: 28, class: 'hub-landing-wave hub-landing-wave-secondary', 'aria-hidden': 'true' }));
+    const entryLight = make('g', { class: 'hub-entry', 'aria-hidden': 'true' });
+    entryLight.append(make('path', { d: `M${x - 15} ${y - 2} L${x} ${y - 60} L${x + 15} ${y - 2} Z`, class: 'hub-beam' }));
+    entryLight.append(make('circle', { cx: x, cy: y, r: 23, class: 'hub-orbit' }));
+    entryLight.append(make('circle', { cx: x, cy: y, r: 11, class: 'node-pulse' }));
+    entryLight.append(make('circle', { cx: x, cy: y, r: 8, class: 'hub-core' }));
+    group.append(entryLight);
+    group.append(make('image', { href: 'assets/中心点.png', x: x - 12, y: y - 52, width: 24, height: 50, class: 'hub-location-icon', 'aria-hidden': 'true' }));
+    hubEntryNode = group;
   } else {
     group.append(make('circle', { cx: x, cy: y, r: 13, class: 'node-pulse' }));
     group.append(make('circle', { cx: x, cy: y, r: 7, class: 'node-ring' }));
     group.append(make('circle', { cx: x, cy: y, r: 3.6, class: 'node-core' }));
     const labelWidth = Math.max(34, point.name.length * 12 + 12);
-    group.append(make('rect', { x: x - labelWidth / 2, y: y - 29, width: labelWidth, height: 16, rx: 1, class: 'map-label-plate' }));
-    const label = make('text', { x, y: y - 17, class: 'map-label' });
+    group.append(make('image', { href: 'assets/定位.png', x: x - 6, y: y - 25, width: 12, height: 12, class: 'map-location-icon', 'aria-hidden': 'true' }));
+    group.append(make('rect', { x: x - labelWidth / 2, y: y - 42, width: labelWidth, height: 16, rx: 1, class: 'map-label-plate' }));
+    const label = make('text', { x, y: y - 30, class: 'map-label' });
     label.textContent = point.name;
     group.append(label);
     group.addEventListener('click', () => setActiveRegion(regions.indexOf(point)));
@@ -135,10 +198,10 @@ function drawNetwork() {
     });
   });
   drawLocation(hub, true);
-  regions.forEach(region => drawLocation(region));
+  regions.forEach((region, index) => drawLocation(region, false, index));
   const [hubX, hubY] = project([hub.lng, hub.lat]);
-  layers.nodes.append(make('rect', { x: hubX - 76, y: hubY - 130, width: 152, height: 24, rx: 2, class: 'hub-label-plate' }));
-  const hubLabel = make('text', { x: hubX, y: hubY - 113, class: 'hub-label' });
+  layers.nodes.append(make('rect', { x: hubX - 76, y: hubY - 92, width: 152, height: 24, rx: 2, class: 'hub-label-plate' }));
+  const hubLabel = make('text', { x: hubX, y: hubY - 75, class: 'hub-label' });
   hubLabel.textContent = '呼和浩特 · 调度中枢';
   layers.nodes.append(hubLabel);
 }
@@ -225,13 +288,29 @@ function stopAutoShowcase() {
   autoShowcaseActive = false;
 }
 
-function deferAutoShowcaseAfterInteraction() {
-  if (!autoShowcaseActive) return;
-  if (autoShowcaseTimer !== null) window.clearTimeout(autoShowcaseTimer);
+function deferAutoShowcaseAfterInteraction(nextIndex = (activeIndex + 1) % regions.length) {
+  clearIdleOverviewTimer();
+  stopAutoShowcase();
   autoShowcaseTimer = window.setTimeout(() => {
     autoShowcaseTimer = null;
-    if (autoShowcaseActive) playAutoShowcaseStep();
+    autoShowcaseActive = true;
+    autoShowcaseIndex = nextIndex;
+    playAutoShowcaseStep();
   }, autoInteractionDelay);
+}
+
+function resetIdleOverviewTimer() {
+  if (idleOverviewTimer !== null) window.clearTimeout(idleOverviewTimer);
+  const timerVersion = ++idleOverviewVersion;
+  idleOverviewTimer = window.setTimeout(() => {
+    if (timerVersion === idleOverviewVersion) showOverview();
+  }, idleOverviewDelay);
+}
+
+function clearIdleOverviewTimer() {
+  idleOverviewVersion += 1;
+  if (idleOverviewTimer !== null) window.clearTimeout(idleOverviewTimer);
+  idleOverviewTimer = null;
 }
 
 function resetMapCamera() {
@@ -269,9 +348,11 @@ function focusMapCamera(region) {
 }
 
 function playAutoShowcaseStep() {
-  if (!autoShowcaseActive || autoShowcaseIndex >= regions.length) {
-    stopAutoShowcase();
-    resetMapCamera();
+  if (!autoShowcaseActive) return;
+  if (autoShowcaseIndex >= regions.length) {
+    autoShowcaseActive = false;
+    autoShowcaseTimer = null;
+    resetIdleOverviewTimer();
     return;
   }
   setActiveRegion(autoShowcaseIndex, { auto: true });
@@ -288,44 +369,74 @@ function startAutoShowcase() {
 
 function setActiveRegion(index, options = {}) {
   if (!options.auto) {
-    if (autoShowcaseActive) deferAutoShowcaseAfterInteraction();
-    else stopAutoShowcase();
+    deferAutoShowcaseAfterInteraction();
   }
   activeIndex = index;
   const region = regions[index];
   const panel = document.getElementById('business-modal');
-  const wasOpen = panel.classList.contains('is-open');
+  panel.classList.remove('is-overview');
   document.getElementById('region-index').textContent = String(index + 1).padStart(2, '0');
+  document.getElementById('business-eyebrow').textContent = 'BUSINESS PROJECT';
   document.getElementById('region-name').textContent = region.name;
-  document.getElementById('region-category').textContent = region.category;
+  document.getElementById('region-category').textContent = projectTitlesByCity[region.name] || region.category;
   document.getElementById('region-copy').textContent = region.copy;
+  document.getElementById('region-details').textContent = projectDetailsByCity[region.name] || '';
+  document.getElementById('region-metric-label').textContent = '业务节点';
   document.getElementById('region-metric').textContent = region.metric;
-  document.querySelectorAll('.geo-province').forEach(path => path.classList.remove('is-active'));
-  const target = document.querySelector(`[data-name="${region.name.replace('乌鲁木齐', '新疆维吾尔自治区').replace('沈阳', '辽宁省').replace('杭州', '浙江省').replace('广州', '广东省').replace('成都', '四川省').replace('银川', '宁夏回族自治区').replace('北京', '北京市').replace('上海', '上海市')}"]`);
-  if (target) target.classList.add('is-active');
-  const selectedProvince = document.querySelector(`[data-adcode="${provinceCodes[index]}"]`);
-  if (selectedProvince) selectedProvince.classList.add('is-active');
+  const projectMedia = document.getElementById('project-media');
+  const projectImages = projectImagesByCity[region.name] || [];
+  const projectImage = projectImages.length ? projectImages[Math.floor(Math.random() * projectImages.length)] : '';
+  projectMedia.classList.toggle('has-image', Boolean(projectImage));
+  projectMedia.style.backgroundImage = projectImage ? `url(${projectImage})` : '';
+  document.querySelectorAll('.target-node').forEach(node => node.classList.remove('is-active'));
+  const selectedNode = document.querySelector(`.target-node[data-region-index="${index}"]`);
+  if (selectedNode) selectedNode.classList.add('is-active');
   window.energyThreeMap?.select(provinceCodes[index]);
   focusMapCamera(region);
   emitRoute(index);
   panel.setAttribute('aria-hidden', 'false');
-  document.getElementById('modal-backdrop').classList.add('is-open');
-  if (!wasOpen) panel.classList.add('is-open');
+  panel.classList.add('is-open');
 }
 
-function closeBusinessModal() {
+function showOverview() {
   stopAutoShowcase();
+  clearIdleOverviewTimer();
+  activeIndex = 0;
   resetMapCamera();
   const panel = document.getElementById('business-modal');
-  panel.classList.remove('is-open');
-  panel.setAttribute('aria-hidden', 'true');
-  document.getElementById('modal-backdrop').classList.remove('is-open');
-  document.querySelectorAll('.geo-province').forEach(path => path.classList.remove('is-active'));
+  panel.classList.add('is-open', 'is-overview');
+  panel.setAttribute('aria-hidden', 'false');
+  document.getElementById('business-eyebrow').textContent = 'BUSINESS OVERVIEW';
+  document.getElementById('region-index').textContent = 'ALL';
+  document.getElementById('region-name').textContent = '全国业务网络';
+  document.getElementById('region-category').textContent = '全国业务概览';
+  document.getElementById('region-copy').textContent = '覆盖全国 12 个核心城市，协同服务配电、新能源与综合能源项目。';
+  document.getElementById('region-details').textContent = '统筹区域配电装备、新能源配套与综合能源服务。\n形成城市协同、项目联动的业务网络。';
+  document.getElementById('region-metric-label').textContent = '核心节点';
+  document.getElementById('region-metric').textContent = '12 个城市';
+  const projectMedia = document.getElementById('project-media');
+  projectMedia.classList.remove('has-image');
+  projectMedia.style.backgroundImage = '';
+  document.querySelectorAll('.target-node').forEach(node => node.classList.remove('is-active'));
   window.energyThreeMap?.select(null);
 }
 
-document.getElementById('modal-backdrop').addEventListener('click', closeBusinessModal);
-document.addEventListener('keydown', event => { if (event.key === 'Escape') closeBusinessModal(); });
+function returnToOverviewFromOutside() {
+  const resumeIndex = autoShowcaseActive && autoShowcaseIndex < regions.length ? autoShowcaseIndex : null;
+  showOverview();
+  if (resumeIndex !== null) deferAutoShowcaseAfterInteraction(resumeIndex);
+}
+
+document.addEventListener('pointerdown', event => {
+  if (event.target.closest('.map-stage')) {
+    if (!autoShowcaseActive && autoShowcaseIndex >= regions.length) resetIdleOverviewTimer();
+  }
+  else returnToOverviewFromOutside();
+});
+document.addEventListener('keydown', event => {
+  if (event.key === 'Escape') showOverview();
+  else if (!autoShowcaseActive && autoShowcaseIndex >= regions.length) resetIdleOverviewTimer();
+});
 updateNetworkTotals();
 window.setTimeout(animateOverviewCounts, 180);
 window.addEventListener('resize', () => {
@@ -340,7 +451,6 @@ fetch('data/china.geojson')
     window.energyThreeMap?.load(geo);
     geo.features.forEach((feature, index) => {
       const d = geometryPath(feature.geometry);
-      for (let level = 30; level >= 2; level -= 2) layers.depth.append(make('path', { d, class: 'geo-depth', transform: `translate(${-level * .42} ${(level * .78).toFixed(1)})`, opacity: (0.12 + level / 92).toFixed(2) }));
       const provincePath = make('path', { d, class: 'geo-province', 'data-name': feature.properties.name, 'data-adcode': feature.properties.adcode, 'data-index': index });
       const regionIndex = provinceCodes.indexOf(Number(feature.properties.adcode));
       if (regionIndex >= 0) {
@@ -352,9 +462,16 @@ fetch('data/china.geojson')
       layers.provinces.append(provincePath);
     });
     drawNetwork();
-    window.setTimeout(() => {
-      emitAllRoutes();
-      window.setTimeout(startAutoShowcase, initialRouteFlightDuration + 180);
-    }, 420);
+    window.requestAnimationFrame(() => {
+      window.requestAnimationFrame(() => {
+        window.setTimeout(() => {
+          hubEntryNode?.classList.add('is-entering');
+          window.setTimeout(() => {
+            emitAllRoutes();
+            window.setTimeout(startAutoShowcase, initialRouteFlightDuration + 180);
+          }, hubEntryDuration);
+        }, 180);
+      });
+    });
   })
   .catch(() => { document.querySelector('.map-stage').classList.add('map-error'); });
