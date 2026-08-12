@@ -800,6 +800,73 @@ body, body p, body h1, body h2, body span, body b,
   .workspace { min-height:calc(100vh - 186px); }
 }
 
+/* Keep the complete dashboard visible without a vertical scroll. */
+.topbar .heading h1 {
+  font-size:32px;
+  line-height:1;
+}
+
+.workspace {
+  min-height:calc(100vh - 168px);
+  padding-top:0;
+  padding-bottom:42px;
+}
+
+.map-stage {
+  min-height:0;
+  height:min(78vh, 650px);
+  transform:translateY(-4%);
+}
+
+@media (max-width:720px) {
+  .topbar { min-height:48px; height:48px; }
+  .topbar .heading h1 { font-size:27px; letter-spacing:3px; }
+  .workspace {
+    min-height:calc(100vh - 158px);
+    padding-top:0;
+    padding-bottom:42px;
+  }
+  .map-stage {
+    height:min(59vh, 390px);
+    transform:translateY(-4%);
+  }
+}
+
+/* Preserve the SVG's native 1000:760 map proportion. */
+.map-stage {
+  width:min(100%, 855px);
+  height:auto;
+  min-height:0;
+  aspect-ratio:1000 / 760;
+}
+
+@media (min-width:821px) {
+  .map-stage {
+    width:min(100%, 920px);
+    min-height:0;
+  }
+}
+
+@media (max-width:720px) {
+  .map-stage {
+    width:100%;
+    height:auto;
+    min-height:0;
+    aspect-ratio:1000 / 760;
+  }
+}
+
+/* Bring the map artwork directly below the page title. */
+#network-map,
+#three-map-canvas {
+  transform:scale(1.45) translate(11%, -1%);
+}
+
+@media (max-width:720px) {
+  #network-map,
+  #three-map-canvas { transform:scale(1.45) translate(12%, -2%); }
+}
+
 /* Larger, higher business-distribution copy during the 01-08 showcase. */
 .business-modal,
 .business-modal.is-open {
@@ -842,7 +909,7 @@ body, body p, body h1, body h2, body span, body b,
   .map-stage {
     grid-column:1;
     min-height:620px;
-    transform:translateX(clamp(-56px, -4vw, -26px)) scale(.96);
+    transform:translateX(clamp(20px, 3vw, 46px)) translateY(5%) scale(1.04);
     transform-origin:center;
   }
 

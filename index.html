@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#0b1a2a">
-  <title>综合能源业务网络</title>
+  <title>业务分布</title>
   <link rel="stylesheet" href="styles.css">
   <link rel="stylesheet" href="map-scale.css">
 </head>
@@ -19,21 +19,6 @@
       <i class="signal-lane lane-c"></i>
       <i class="signal-lane lane-d"></i>
     </div>
-    <header class="brand-banner" aria-label="内蒙古华毅达电力设备有限公司">
-      <div class="company-lockup">
-        <div class="company-mark" aria-hidden="true"><img src="assets/company-logo-strip.jpg" alt=""></div>
-        <div class="company-copy">
-          <strong>内蒙古华毅达电力设备有限公司</strong>
-          <span>HUAYI DA ELECTRIC</span>
-        </div>
-      </div>
-      <div class="sand-table-title">
-        <h2>综合能源数字沙盘</h2>
-        <p>配电装备、新能源配套与工程服务一体化展示平台</p>
-      </div>
-      <div class="brand-banner-spacer" aria-hidden="true"></div>
-    </header>
-
     <header class="topbar">
       <div class="heading"><h1>业务分布</h1></div>
     </header>
@@ -46,7 +31,7 @@
           <i class="map-ripple ripple-three"></i>
         </div>
         <canvas id="three-map-canvas" aria-hidden="true"></canvas>
-        <svg id="network-map" viewBox="0 0 1000 760" preserveAspectRatio="none" role="img" aria-label="中国综合能源业务网络地图">
+        <svg id="network-map" viewBox="0 0 1000 760" preserveAspectRatio="xMidYMid meet" role="img" aria-label="中国综合能源业务网络地图">
           <defs>
             <!-- 省份渐变（app.js 中使用） -->
             <linearGradient id="province-gradient" gradientUnits="userSpaceOnUse" x1="150" y1="145" x2="835" y2="660">
@@ -88,8 +73,8 @@
       <aside id="business-modal" class="business-modal is-open is-overview" aria-live="polite" aria-hidden="false" aria-label="BUSINESS DISTRIBUTION">
         <p class="eyebrow" id="business-eyebrow">BUSINESS OVERVIEW</p>
         <div class="region-index"><span id="region-index">ALL</span><span id="region-total">/ 12</span></div>
-        <h2 id="region-name">全国业务网络</h2>
-        <p class="region-category" id="region-category">综合能源业务分布</p>
+        <h2 id="region-name">业务分布</h2>
+        <p class="region-category" id="region-category">业务分布</p>
         <div id="project-media" class="project-media" aria-hidden="true"></div>
         <p class="region-copy" id="region-copy">覆盖全国 12 个核心城市，协同服务配电、新能源与综合能源项目。</p>
         <p class="region-details" id="region-details">统筹区域配电装备、新能源配套与综合能源服务。\n形成城市协同、项目联动的业务网络。</p>

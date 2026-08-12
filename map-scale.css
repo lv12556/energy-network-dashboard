@@ -1,7 +1,7 @@
 /* Desktop visual tuning: preserve the layout footprint while easing the map size. */
 @media (min-width: 1024px) {
   .map-stage {
-    transform: translate(.5%, -2%) scale(.90);
+    transform: translate(.5%, -5%) scale(.98);
     transform-origin: center center;
   }
 }
